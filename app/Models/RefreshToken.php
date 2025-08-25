@@ -2,44 +2,29 @@
 
 namespace App\Models;
 
-use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class RefreshToken extends Model
 {
     protected $fillable = [
         'user_id',
+        'guard',        // NEW: to distinguish admin/supervisor/scholar
         'token',
-        'expires_at',
-        'last_used_at',
         'ip_address',
         'user_agent',
+        'device_name',
+        'last_used_at',
+        'expires_at',
     ];
 
     protected $casts = [
-        'expires_at' => 'datetime',
         'last_used_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
-    protected $appends = ['device_name'];
-
-    public function user()
+    public function user(): MorphTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function getDeviceNameAttribute(): ?string
-    {
-        if (! $this->user_agent) {
-            return null;
-        }
-
-        $result = Browser::parse($this->user_agent);
-
-        $browser = $result->browserName() ?? 'Unknown Browser';
-        $os = $result->platformName() ?? 'Unknown OS';
-        $device = $result->deviceFamily() ?: '';
-
-        return trim("{$browser} on {$os} {$device}");
+        return $this->morphTo(__FUNCTION__, 'guard', 'user_id');
     }
 }
