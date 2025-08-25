@@ -141,6 +141,13 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'scholars' => [
+            'provider' => 'scholars',
+            'table' => 'scholar_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*
