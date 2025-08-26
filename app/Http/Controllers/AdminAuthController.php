@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Traits\HandlesAuth;
+use App\Traits\HandlesAuth;
 use App\Models\Admin;
 use App\Models\RefreshToken;
 use Illuminate\Http\Request;
