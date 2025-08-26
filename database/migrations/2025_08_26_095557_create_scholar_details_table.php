@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('scholar_details', function (Blueprint $table) {
             $table->id();
-            $table->foreign('scholar_id')->references('id')->on('scholars');
+            $table->foreignId('scholar_id')->constrained('scholars');
             $table->string('secondary_school_name')->nullable();
             $table->string('secondary_school_year')->nullable();
             $table->string('secondary_school_subjects')->nullable();

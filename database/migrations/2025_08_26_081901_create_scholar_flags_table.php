@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('scholar_flags', function (Blueprint $table) {
             $table->id();
-            $table->foreign('scholar_id')->references('id')->on('scholars');
+            $table->foreignId('scholar_id')->constrained('scholars');
             $table->boolean('step_1_complete')->default(false);
             $table->boolean('step_2_complete')->default(false);
             $table->boolean('step_3_complete')->default(false);
