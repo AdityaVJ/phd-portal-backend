@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class Scholar extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +19,14 @@ class Scholar extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'registration_number',
+        'registration_date',
+        'is_active',
+        'is_scholarship_complete',
+        'phone',
         'password',
+        'gender',
+        'date_of_birth',
     ];
 
     /**
