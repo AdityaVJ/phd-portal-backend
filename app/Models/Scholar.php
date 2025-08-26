@@ -53,4 +53,9 @@ class Scholar extends Authenticatable
     {
         return $this->hasOne(ScholarFlags::class);
     }
+
+    public function communicationRecords()
+    {
+        return $this->hasMany(CommunicationRecord::class);
+    }
 }
