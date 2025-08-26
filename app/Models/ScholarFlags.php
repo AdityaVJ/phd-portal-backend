@@ -11,33 +11,27 @@ class ScholarFlags extends Model
 
     protected $fillable = [
         'scholar_id',
-        'secondary_school_name',
-        'secondary_school_year',
-        'secondary_school_subjects',
-        'secondary_school_aggregate',
-        'secondary_school_grade',
-        'secondary_school_board',
-        'hs_school_name',
-        'hs_school_year',
-        'hs_school_board',
-        'hs_school_subjects',
-        'hs_school_aggregate',
-        'hs_school_grade',
-        'grad_course',
-        'grad_pass_year',
-        'grad_university',
-        'grad_aggregate',
-        'grad_subject',
-        'grad_grade',
-        'post_grad_course',
-        'post_grad_pass_year',
-        'post_grad_university',
-        'post_grad_aggregrate',
-        'post_grad_subject',
-        'post_grad_grade',
-        'address',
-        'city',
-        'state',
-        'pincode'
+        'step_1_complete',
+        'step_2_complete',
+        'step_3_complete',
+        'step_4_complete',
+        'step_5_complete',
+        'rac_6_approval',
+        'drc_6_approval',
+        'step_6_complete',
+        'rac_7_approval',
+        'drc_7_approval',
+        'step_7_complete',
+        'step_8a_complete',
+        'step_8b_complete',
+        'step_9_complete',
+        'step_10_complete',
+        'step_11_complete',
+        'step_12_complete',
     ];
+
+    function scholar()
+    {
+        return $this->belongsTo(Scholar::class);
+    }
 }
