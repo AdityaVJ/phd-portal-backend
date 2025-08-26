@@ -48,4 +48,9 @@ class Scholar extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function scholarFlags()
+    {
+        return $this->hasOne(ScholarFlags::class);
+    }
 }
