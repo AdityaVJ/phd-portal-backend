@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'refresh_token_ttl' => env('REFRESH_TOKEN_TTL', 30*24*60), // in minutes
+    'refresh_token_ttl' => env('REFRESH_TOKEN_TTL', 30 * 24 * 60), // in minutes
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
