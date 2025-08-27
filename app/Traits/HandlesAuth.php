@@ -10,12 +10,21 @@ trait HandlesAuth
 {
     protected function createAccessToken($user)
     {
-        return $user->createToken('api-token')->plainTextToken;
+        $token = $user->createToken('api-token');
+        $ttl = config('sanctum.expiration', 60); // default 60 mins
+        return [
+            'token' => $token->plainTextToken,
+            'expires_at' => now()->addMinutes(intval($ttl)),
+        ];
     }
 
     protected function createRefreshToken($user, Request $request, string $guard)
     {
         $refreshToken = Str::random(64);
+
+        $refreshTokenExpiresAt = now()->addMinutes(
+            intval(config('auth.refresh_token_ttl', 30)) // configurable in config/auth.php
+        );
 
         RefreshToken::create([
             'user_id' => $user->id,
@@ -25,15 +34,18 @@ trait HandlesAuth
             'user_agent' => $request->userAgent(),
             'device_name' => $this->getDeviceName($request->userAgent()),
             'last_used_at' => now(),
-            'expires_at' => now()->addDays(30),
+            'expires_at' => $refreshTokenExpiresAt,
         ]);
 
-        return $refreshToken;
+        return [
+            'token' => $refreshToken,
+            'expires_at' => $refreshTokenExpiresAt,
+        ];
     }
 
     protected function getDeviceName($userAgent)
     {
-        if (! $userAgent) {
+        if (!$userAgent) {
             return 'Unknown Device';
         }
 
@@ -51,14 +63,15 @@ trait HandlesAuth
 
     protected function issueTokens($user, Request $request, string $guard)
     {
-        $accessToken = $this->createAccessToken($user);
-        $refreshToken = $this->createRefreshToken($user, $request, $guard);
+        $access = $this->createAccessToken($user);
+        $refresh = $this->createRefreshToken($user, $request, $guard);
 
         return response()->json([
-            'access_token' => $accessToken,
-            'refresh_token' => $refreshToken,
+            'access_token' => $access['token'],
+            'refresh_token' => $refresh['token'],
             'token_type' => 'Bearer',
-            'expires_in' => 3600, // 1 hour
+            'access_token_expires_at' => $access['expires_at']->toIso8601String(),
+            'refresh_token_expires_at' => $refresh['expires_at']->toIso8601String(),
         ]);
     }
 }
