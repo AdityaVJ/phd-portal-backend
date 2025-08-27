@@ -8,9 +8,14 @@ use Illuminate\Support\Str;
 
 trait HandlesAuth
 {
-    protected function createAccessToken($user)
+    protected function createAccessToken($user, string $guard)
     {
-        $token = $user->createToken('api-token');
+        // Use guard as ability (e.g. "admin", "scholar", etc.)
+        $token = $user->createToken(
+            $guard . '-api-token',
+            [$guard] // token abilities
+        );
+
         $ttl = config('sanctum.expiration', 60); // default 60 mins
         return [
             'token' => $token->plainTextToken,
@@ -23,7 +28,7 @@ trait HandlesAuth
         $refreshToken = Str::random(64);
 
         $refreshTokenExpiresAt = now()->addMinutes(
-            intval(config('auth.refresh_token_ttl', 30)) // configurable in config/auth.php
+            intval(config('auth.refresh_token_ttl', 30 * 24 * 60)) // configurable in config/auth.php
         );
 
         RefreshToken::create([
@@ -63,7 +68,7 @@ trait HandlesAuth
 
     protected function issueTokens($user, Request $request, string $guard)
     {
-        $access = $this->createAccessToken($user);
+        $access = $this->createAccessToken($user, $guard);
         $refresh = $this->createRefreshToken($user, $request, $guard);
 
         return response()->json([
