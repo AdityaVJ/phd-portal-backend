@@ -23,12 +23,24 @@ class AdminAuthController extends Controller
 
         $admin = Admin::where('email', $request->email)->first();
 
-        if (! $admin || ! Hash::check($request->password, $admin->password)) {
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        return $this->issueTokens($admin, $request, $this->guard);
+        // Get the token array from issueTokens
+        $tokenResponse = $this->issueTokens($admin, $request, $this->guard);
+        $tokens = $tokenResponse->getData(true);
+
+        // Add the user object at the top level
+        $tokens['user'] = [
+            'id'    => $admin->id,
+            'name'  => $admin->name,
+            'email' => $admin->email,
+        ];
+
+        return response()->json($tokens);
     }
+
 
     public function refresh(Request $request)
     {
