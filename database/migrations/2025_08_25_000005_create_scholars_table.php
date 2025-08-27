@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('registration_number');
+            $table->string('registration_number')->unique();
             $table->date('registration_date');
             $table->boolean('is_active')->default(true);
             $table->boolean('is_scholarship_complete')->default(false);
