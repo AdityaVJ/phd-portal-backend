@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         function (Middleware $middleware): void {
             // Enable Sanctum's stateful API middleware for API routes
             $middleware->statefulApi();
+            $middleware->alias([
+                'auth' => \App\Http\Middleware\Authenticate::class,
+            ]);
         }
     )
     ->withExceptions(
