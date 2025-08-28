@@ -14,6 +14,7 @@ return [
     */
 
     'refresh_token_ttl' => env('REFRESH_TOKEN_TTL', 30 * 24 * 60), // in minutes
+    'reset_token_ttl' => env('PW_RESET_TOKEN_TTL', 60), // in minutes
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
