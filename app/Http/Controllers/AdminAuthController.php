@@ -22,9 +22,8 @@ class AdminAuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'remember_me' => 'nullable'
         ]);
-
-        // TODO: Remember me logic to be implemented here.
 
         $admin = Admin::where('email', $request->email)->first();
 

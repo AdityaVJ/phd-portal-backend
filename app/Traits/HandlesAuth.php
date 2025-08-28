@@ -26,9 +26,10 @@ trait HandlesAuth
     protected function createRefreshToken($user, Request $request, string $guard)
     {
         $refreshToken = Str::random(64);
+        $rememberMe = $request->remember_me ?? false;
 
         $refreshTokenExpiresAt = now()->addMinutes(
-            intval(config('auth.refresh_token_ttl', 30 * 24 * 60)) // configurable in config/auth.php
+            $rememberMe ? intval(config('auth.refresh_token_ttl', 30 * 24 * 60)) : 24 * 60 // configurable in config/auth.php
         );
 
         RefreshToken::create([

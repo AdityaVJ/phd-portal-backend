@@ -22,6 +22,7 @@ class ScholarAuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'remember_me' => 'nullable'
         ]);
 
         $scholar = Scholar::where('email', $request->email)->first();
