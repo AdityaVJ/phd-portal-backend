@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::post('/refresh', [AdminAuthController::class, 'refresh']);
+    Route::post('/forgot-password', [AdminAuthController::class, 'forgot']);
+    Route::post('/reset-password', [AdminAuthController::class, 'reset']);
     Route::middleware('auth:admin')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout']);
         Route::post('/logout-all', [AdminAuthController::class, 'logoutAll']);
@@ -21,6 +23,8 @@ Route::prefix('admin')->group(function () {
 Route::prefix('supervisor')->group(function () {
     Route::post('/login', [SupervisorAuthController::class, 'login']);
     Route::post('/refresh', [SupervisorAuthController::class, 'refresh']);
+    Route::post('/forgot-password', [SupervisorAuthController::class, 'forgot']);
+    Route::post('/reset-password', [SupervisorAuthController::class, 'reset']);
     Route::middleware('auth:supervisor')->group(function () {
         Route::post('/logout', [SupervisorAuthController::class, 'logout']);
         Route::post('/logout-all', [SupervisorAuthController::class, 'logoutAll']);
@@ -33,6 +37,8 @@ Route::prefix('supervisor')->group(function () {
 Route::prefix('scholar')->group(function () {
     Route::post('/login', [ScholarAuthController::class, 'login']);
     Route::post('/refresh', [ScholarAuthController::class, 'refresh']);
+    Route::post('/forgot-password', [ScholarAuthController::class, 'forgot']);
+    Route::post('/reset-password', [ScholarAuthController::class, 'reset']);
     Route::middleware('auth:scholar')->group(function () {
         Route::post('/logout', [ScholarAuthController::class, 'logout']);
         Route::post('/logout-all', [ScholarAuthController::class, 'logoutAll']);

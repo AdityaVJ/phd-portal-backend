@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Traits\HandlesAuth;
 use App\Models\RefreshToken;
 use App\Models\Scholar;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ScholarAuthController extends Controller
 {
@@ -93,5 +96,66 @@ class ScholarAuthController extends Controller
         $session->delete();
 
         return response()->json(['message' => 'Session revoked']);
+    }
+
+    public function forgot(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $supervisor = Scholar::where('email', $request->email)->first();
+        if (!$supervisor) {
+            return response()->json(['message' => 'Email not found'], 404);
+        }
+
+        // Create token
+        $token = Str::random(60);
+
+        DB::table('scholar_password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'email' => $request->email,
+                'token' => Hash::make($token),
+                'created_at' => Carbon::now(),
+            ]
+        );
+
+        // TODO: send $token via email/notification
+        return response()->json(['message' => 'Reset link sent', 'token' => $token]);
+    }
+
+    public function reset(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $record = DB::table('scholar_password_reset_tokens')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record || !Hash::check($request->token, $record->token)) {
+            return response()->json(['message' => 'Invalid token'], 400);
+        }
+
+        // Expiry check (optional: e.g. 60 minutes)
+        if (Carbon::parse($record->created_at)->addMinutes(intval(config('auth.reset_token_ttl', 60)))->isPast()) {
+            return response()->json(['message' => 'Token expired'], 400);
+        }
+
+        // Reset password
+        $supervisor = Scholar::where('email', $request->email)->first();
+        if (!$supervisor) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $supervisor->password = Hash::make($request->password);
+        $supervisor->save();
+
+        // Delete reset record
+        DB::table('scholar_password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json(['message' => 'Password reset successful']);
     }
 }
