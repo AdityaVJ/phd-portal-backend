@@ -33,7 +33,7 @@ class AdminApiController extends Controller
         $scholars = Scholar::query()
             ->with([
                 'activeSupervisor.supervisor',
-                'activeSupervisor.assignedBy'
+                'activeSupervisor.assignedBy',
             ])
             ->when($request->supervisor_id, fn($q, $supervisorId) => $q->fromSupervisor($supervisorId))
             ->when($request->start_date && $request->end_date, fn($q) => $q->registeredBetween($request->start_date, $request->end_date)
@@ -77,6 +77,8 @@ class AdminApiController extends Controller
             'activeSupervisor.supervisor',
             'activeSupervisor.assignedBy',
         ]);
+
+        $scholar->details = $scholar->details();
 
 //        return new ScholarResource($scholar);
         return response()->json($scholar);
