@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PasswordResetMail;
 use App\Models\RefreshToken;
 use App\Models\Supervisor;
 use App\Traits\HandlesAuth;
@@ -9,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class SupervisorAuthController extends Controller
@@ -27,7 +29,7 @@ class SupervisorAuthController extends Controller
 
         $supervisor = Supervisor::where('email', $request->email)->first();
 
-        if (! $supervisor || ! Hash::check($request->password, $supervisor->password)) {
+        if (!$supervisor || !Hash::check($request->password, $supervisor->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -53,7 +55,7 @@ class SupervisorAuthController extends Controller
             ->where('guard', $this->guard)
             ->first();
 
-        if (! $token || $token->expires_at->isPast()) {
+        if (!$token || $token->expires_at->isPast()) {
             return response()->json(['message' => 'Invalid or expired refresh token'], 401);
         }
 
@@ -130,7 +132,10 @@ class SupervisorAuthController extends Controller
             ]
         );
 
-        // TODO: send $token via email/notification
+        $resetUrl = url("/reset-password/supervisor?token={$token}&email={$request->email}");
+        // Send email
+        Mail::to($request->email)->send(new PasswordResetMail($resetUrl, 'supervisor'));
+
         return response()->json(['message' => 'Reset link sent', 'token' => $token]);
     }
 

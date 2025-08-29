@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Traits\HandlesAuth;
+use App\Mail\PasswordResetMail;
 use App\Models\RefreshToken;
 use App\Models\Scholar;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class ScholarAuthController extends Controller
@@ -130,7 +132,10 @@ class ScholarAuthController extends Controller
             ]
         );
 
-        // TODO: send $token via email/notification
+        $resetUrl = url("/reset-password/scholar?token={$token}&email={$request->email}");
+        // Send email
+        Mail::to($request->email)->send(new PasswordResetMail($resetUrl, 'scholar'));
+
         return response()->json(['message' => 'Reset link sent', 'token' => $token]);
     }
 
