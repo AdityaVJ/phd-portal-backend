@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminApiController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\ScholarAuthController;
 use App\Http\Controllers\SupervisorAuthController;
@@ -16,6 +17,12 @@ Route::prefix('admin')->group(function () {
         Route::post('/logout-all', [AdminAuthController::class, 'logoutAll']);
         Route::get('/sessions', [AdminAuthController::class, 'sessions']);
         Route::delete('/sessions/{id}', [AdminAuthController::class, 'revokeSession']);
+        Route::get('/list', [AdminApiController::class, 'getAllAdmins']);
+        Route::get('/details/{admin}', [AdminApiController::class, 'getAdminDetails']);
+        Route::get('/scholars', [AdminApiController::class, 'getAllScholars']);
+        Route::get('/scholars/{scholar}', [AdminApiController::class, 'getAllScholars']);
+        Route::get('/supervisors', [AdminApiController::class, 'getAllSupervisors']);
+        Route::get('/supervisors/{supervisor}', [AdminApiController::class, 'getSupervisorDetails']);
     });
 });
 

@@ -87,51 +87,22 @@ class AdminApiController extends Controller
 
     public function getAllScholars(Request $request)
     {
-        $query = Scholar::query()
-            ->with(['activeSupervisor.supervisor', 'activeSupervisor.assignedBy']);
-//            ->fromSupervisor($request->supervisor_id)
-//            ->registeredBetween($request->start_date, $request->end_date);
+        $scholars = Scholar::query()
+            ->with([
+                'activeSupervisor.supervisor',
+                'activeSupervisor.assignedBy'
+            ])
+            ->when($request->supervisor_id, fn($q, $supervisorId) => $q->fromSupervisor($supervisorId))
+            ->when($request->start_date && $request->end_date, fn($q) =>
+            $q->registeredBetween($request->start_date, $request->end_date)
+            )
+            ->orderBy(
+                $request->get('sort_by', 'registration_date'),
+                $request->get('sort_dir', 'desc')
+            )
+            ->paginate($request->get('per_page', 15));
 
-        // Sorting (default: registration_date desc)
-        $sortBy = $request->get('sort_by', 'registration_date');
-        $sortDir = $request->get('sort_dir', 'desc');
-
-        $allowedSorts = [
-            'name', 'email', 'registration_number', 'registration_date', 'is_active',
-        ];
-
-        if (!in_array($sortBy, $allowedSorts)) {
-            $sortBy = 'registration_date';
-        }
-
-        $query->orderBy($sortBy, $sortDir);
-
-        $scholars = $query->paginate($request->get('per_page', 15));
-
-        return response()->json([
-            'data' => $scholars->through(function ($scholar) {
-                return [
-                    'id' => $scholar->id,
-                    'name' => $scholar->name,
-                    'email' => $scholar->email,
-                    'registration_number' => $scholar->registration_number,
-                    'registration_date' => $scholar->registration_date,
-                    'is_active' => $scholar->is_active,
-                    'phone' => $scholar->phone,
-                    'gender' => $scholar->gender,
-                    'date_of_birth' => $scholar->date_of_birth,
-                    'supervisor_name' => $scholar->activeSupervisor?->supervisor?->name,
-                    'assigned_date' => $scholar->activeSupervisor?->assigned_date,
-                    'assigned_by' => $scholar->activeSupervisor?->assignedBy?->name,
-                ];
-            }),
-            'pagination' => [
-                'current_page' => $scholars->currentPage(),
-                'last_page' => $scholars->lastPage(),
-                'per_page' => $scholars->perPage(),
-                'total' => $scholars->total(),
-            ],
-        ]);
+        return response()->json($scholars);
     }
 
     function getAllSupervisors(Request $request)
