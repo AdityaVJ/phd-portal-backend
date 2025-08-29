@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class Scholar extends Authenticatable
@@ -80,6 +81,31 @@ class Scholar extends Authenticatable
         return $this->belongsToMany(Supervisor::class, 'scholars_supervisors')
             ->withPivot(['is_active', 'assigned_date', 'removal_date', 'assigned_by_admin_id'])
             ->withTimestamps();
+    }
+
+    public function details()
+    {
+        return DB::table('scholar_details')->where('scholar_id', $this->id)->first();
+    }
+
+    public function saveDetails(array $data)
+    {
+        // check if exists
+        $exists = DB::table('scholar_details')->where('scholar_id', $this->id)->exists();
+
+        if ($exists) {
+            DB::table('scholar_details')
+                ->where('scholar_id', $this->id)
+                ->update(array_merge($data, [
+                    'updated_at' => now(),
+                ]));
+        } else {
+            DB::table('scholar_details')->insert(array_merge($data, [
+                'scholar_id' => $this->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]));
+        }
     }
 
     /**
