@@ -71,9 +71,15 @@ class AdminApiController extends Controller
         // TODO
     }
 
-    function getScholarDetails(Request $request)
+    function getScholarDetails(Request $request, Scholar $scholar)
     {
-        // TODO
+        $scholar->load([
+            'activeSupervisor.supervisor',
+            'activeSupervisor.assignedBy',
+        ]);
+
+//        return new ScholarResource($scholar);
+        return response()->json($scholar);
     }
 
     function getSupervisorDetails(Request $request)

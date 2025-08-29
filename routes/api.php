@@ -20,7 +20,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/list', [AdminApiController::class, 'getAllAdmins']);
         Route::get('/details/{admin}', [AdminApiController::class, 'getAdminDetails']);
         Route::get('/scholars', [AdminApiController::class, 'getAllScholars']);
-        Route::get('/scholars/{scholar}', [AdminApiController::class, 'getAllScholars']);
+        Route::get('/scholars/{scholar}', [AdminApiController::class, 'getScholarDetails']);
         Route::get('/supervisors', [AdminApiController::class, 'getAllSupervisors']);
         Route::get('/supervisors/{supervisor}', [AdminApiController::class, 'getSupervisorDetails']);
     });
