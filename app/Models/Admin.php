@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -43,4 +45,20 @@ class Admin extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    #[Scope]
+    protected function nameLike(Builder $query, ?string $name)
+    {
+        if ($name) {
+            $query->where('name', 'like', "%$name%");
+        }
+    }
+
+    #[Scope]
+    protected function isActive(Builder $query, ?bool $active)
+    {
+        if (!is_null($active)) {
+            $query->where('is_active', $active);
+        }
+    }
 }
