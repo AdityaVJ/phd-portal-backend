@@ -64,8 +64,26 @@ class Supervisor extends Authenticatable
      * Scope a query to filter by Supervisor ID.
      */
     #[Scope]
-    protected function type(Builder $query, string $typeName)
+    protected function type(Builder $query, ?string $typeName)
     {
-        $query->where('type', $typeName);
+        if (!is_null($typeName)) {
+            $query->where('type', $typeName);
+        }
+    }
+
+    #[Scope]
+    protected function nameLike(Builder $query, ?string $name)
+    {
+        if ($name) {
+            $query->where('name', 'like', "%$name%");
+        }
+    }
+
+    #[Scope]
+    protected function isActive(Builder $query, ?bool $active)
+    {
+        if (!is_null($active)) {
+            $query->where('is_active', $active);
+        }
     }
 }
