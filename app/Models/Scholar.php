@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -59,4 +61,49 @@ class Scholar extends Authenticatable
     {
         return $this->hasMany(CommunicationRecord::class);
     }
+
+    public function scholarSupervisors()
+    {
+        return $this->hasMany(ScholarSupervisor::class);
+    }
+
+    // Current active supervisor
+    public function activeSupervisor()
+    {
+        return $this->hasOne(ScholarSupervisor::class)
+            ->where('is_active', true)
+            ->with('supervisor');
+    }
+
+    public function supervisors()
+    {
+        return $this->belongsToMany(Supervisor::class, 'scholars_supervisors')
+            ->withPivot(['is_active', 'assigned_date', 'removal_date', 'assigned_by_admin_id'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Scope a query to filter by Supervisor ID.
+     */
+    #[Scope]
+    protected function fromSupervisor(Builder $query, string $supervisorID)
+    {
+        $query->whereHas('activeSupervisor', function ($q) use ($supervisorID) {
+            $q->where('supervisor_id', $supervisorID)
+                ->where('is_active', true);
+        });
+    }
+
+    #[Scope]
+    protected function registeredBetween(Builder $query, ?string $startDate, ?string $endDate): void
+    {
+        if ($startDate && $endDate) {
+            $query->whereBetween('registration_date', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $query->whereDate('registration_date', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->whereDate('registration_date', '<=', $endDate);
+        }
+    }
+
 }
