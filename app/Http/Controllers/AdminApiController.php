@@ -13,77 +13,19 @@ class AdminApiController extends Controller
 {
     function getAllAdmins(Request $request)
     {
-        $draw = $request->get('draw');
-        $start = $request->get("start");
-        $rowperpage = $request->get("length");
+        $query = Admin::query()
+            ->nameLike($request->name)
+            ->isActive($request->is_active);
 
-        $columnIndex_arr = $request->get('order');
-        $columnName_arr = $request->get('columns');
-        $order_arr = $request->get('order');
-        $search_arr = $request->get('search');
-
-        $columnIndex = $columnIndex_arr[0]['column'];
-        $columnName = $columnName_arr[$columnIndex]['data'];
-        $columnSortOrder = $order_arr[0]['dir'];
-        $searchValue = $search_arr['value'];
-
-        // Map frontend column names to DB columns
-        switch ($columnName) {
-            case 'admin_name':
-                $columnName = 'admins.name';
-                break;
-            case 'is_active':
-                $columnName = 'admins.is_active';
-                break;
-            case 'admin_email':
-                $columnName = 'admins.email';
-                break;
-            default:
-                $columnName = 'admins.id';
+        if ($request->filled('sort_by')) {
+            $query->orderBy($request->sort_by, $request->get('sort_order', 'asc'));
+        } else {
+            $query->orderBy('created_at', 'desc');
         }
 
-        // Base query with joins
-        $query = Admin::select('admins.*');
+        $admins = $query->paginate($request->get('per_page', 15));
 
-        // Apply search
-        if (!empty($searchValue)) {
-            $query->where(function ($q) use ($searchValue) {
-                $q->where('admins.name', 'like', '%' . $searchValue . '%')
-                    ->orWhere('admins.email', 'like', '%' . $searchValue . '%');
-            });
-        }
-
-        // Get filtered record count before pagination
-        $totalFiltered = $query->count();
-
-        // Order, paginate and get results
-        $records = $query->orderBy($columnName, $columnSortOrder)
-            ->skip($start)
-            ->take($rowperpage)
-            ->get();
-
-        // Prepare data
-        $data_arr = [];
-
-        foreach ($records as $record) {
-            $data_arr[] = [
-                "id" => $record->id,
-                "name" => $record->name,
-                "email" => $record->email,
-                "phone" => $record->phone
-            ];
-        }
-
-        // Total records (without filters)
-        $totalRecords = Scholar::count();
-
-        // Return JSON response
-        return response()->json([
-            "draw" => intval($draw),
-            "iTotalRecords" => $totalRecords,
-            "iTotalDisplayRecords" => $totalFiltered,
-            "aaData" => $data_arr,
-        ]);
+        return response()->json($admins);
     }
 
     public function getAllScholars(Request $request)
@@ -109,9 +51,9 @@ class AdminApiController extends Controller
     function getAllSupervisors(Request $request)
     {
         $query = Supervisor::query()
-            ->when($request->name, fn($q, $name) => $q->where('name', 'like', '%' . $name . '%'))
-            ->when($request->type, fn($q, $type) => $q->type($type))
-            ->when($request->is_active, fn($q, $is_active) => $q->where('is_active', $is_active));
+            ->type($request->type)
+            ->nameLike($request->name)
+            ->isActive($request->is_active);
 
         if ($request->filled('sort_by')) {
             $query->orderBy($request->sort_by, $request->get('sort_order', 'asc'));
