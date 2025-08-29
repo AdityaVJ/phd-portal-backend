@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PasswordResetMail;
 use App\Traits\HandlesAuth;
 use App\Models\Admin;
 use App\Models\RefreshToken;
@@ -9,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AdminAuthController extends Controller
@@ -132,7 +134,11 @@ class AdminAuthController extends Controller
             ]
         );
 
-        // TODO: send $token via email/notification
+        $resetUrl = url("/reset-password/admin?token={$token}&email={$request->email}");
+
+        // Send email
+        Mail::to($request->email)->send(new PasswordResetMail($resetUrl, 'admin'));
+
         return response()->json(['message' => 'Reset link sent', 'token' => $token]);
     }
 
