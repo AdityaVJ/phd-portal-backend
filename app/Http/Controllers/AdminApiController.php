@@ -100,7 +100,7 @@ class AdminApiController extends Controller
                 $request->get('sort_by', 'registration_date'),
                 $request->get('sort_dir', 'desc')
             )
-            ->paginate($request->get('per_page', 15));
+            ->paginate($request->get('per_page', env('DEFAULT_PER_PAGE', 15)));
 
         // TODO: Progress calculation and column names list
         return ScholarResource::collection($scholars);
@@ -108,7 +108,20 @@ class AdminApiController extends Controller
 
     function getAllSupervisors(Request $request)
     {
+        $query = Supervisor::query()
+            ->when($request->name, fn($q, $name) => $q->where('name', 'like', '%' . $name . '%'))
+            ->when($request->type, fn($q, $type) => $q->type($type))
+            ->when($request->is_active, fn($q, $is_active) => $q->where('is_active', $is_active));
 
+        if ($request->filled('sort_by')) {
+            $query->orderBy($request->sort_by, $request->get('sort_order', 'asc'));
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $supervisors = $query->paginate($request->get('per_page', env('DEFAULT_PER_PAGE', 15)));
+
+        return response()->json($supervisors);
     }
 
     function getAdminDetails(Request $request)

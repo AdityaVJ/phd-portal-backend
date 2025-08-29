@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -56,5 +58,14 @@ class Supervisor extends Authenticatable
         return $this->belongsToMany(Scholar::class, 'scholars_supervisors')
             ->withPivot(['is_active', 'assigned_date', 'removal_date', 'assigned_by_admin_id'])
             ->withTimestamps();
+    }
+
+    /**
+     * Scope a query to filter by Supervisor ID.
+     */
+    #[Scope]
+    protected function type(Builder $query, string $typeName)
+    {
+        $query->where('type', $typeName);
     }
 }
