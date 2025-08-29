@@ -45,4 +45,16 @@ class Supervisor extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function scholarSupervisors()
+    {
+        return $this->hasMany(ScholarSupervisor::class);
+    }
+
+    public function scholars()
+    {
+        return $this->belongsToMany(Scholar::class, 'scholars_supervisors')
+            ->withPivot(['is_active', 'assigned_date', 'removal_date', 'assigned_by_admin_id'])
+            ->withTimestamps();
+    }
 }
