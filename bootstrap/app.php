@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -13,8 +14,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(
         function (Middleware $middleware): void {
-            // Enable Sanctum's stateful API middleware for API routes
-            $middleware->statefulApi();
             $middleware->alias([
                 'auth' => \App\Http\Middleware\Authenticate::class,
             ]);

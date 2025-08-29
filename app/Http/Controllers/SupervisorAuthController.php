@@ -31,7 +31,17 @@ class SupervisorAuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        return $this->issueTokens($supervisor, $request, $this->guard);
+        $tokenResponse = $this->issueTokens($supervisor, $request, $this->guard);
+        $tokens = $tokenResponse->getData(true);
+
+        // Add the user object at the top level
+        $tokens['user'] = [
+            'id' => $supervisor->id,
+            'name' => $supervisor->name,
+            'email' => $supervisor->email,
+        ];
+
+        return response()->json($tokens);
     }
 
     public function refresh(Request $request)

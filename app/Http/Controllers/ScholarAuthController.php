@@ -31,7 +31,17 @@ class ScholarAuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        return $this->issueTokens($scholar, $request, $this->guard);
+        $tokenResponse = $this->issueTokens($scholar, $request, $this->guard);
+        $tokens = $tokenResponse->getData(true);
+
+        // Add the user object at the top level
+        $tokens['user'] = [
+            'id' => $scholar->id,
+            'name' => $scholar->name,
+            'email' => $scholar->email,
+        ];
+
+        return response()->json($tokens);
     }
 
     public function refresh(Request $request)
