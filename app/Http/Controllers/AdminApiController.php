@@ -66,9 +66,9 @@ class AdminApiController extends Controller
         return response()->json($supervisors);
     }
 
-    function getAdminDetails(Request $request)
+    function getAdminDetails(Request $request, Admin $admin)
     {
-        // TODO
+        return response()->json($admin);
     }
 
     function getScholarDetails(Request $request, Scholar $scholar)
@@ -82,8 +82,9 @@ class AdminApiController extends Controller
         return response()->json($scholar);
     }
 
-    function getSupervisorDetails(Request $request)
+    function getSupervisorDetails(Request $request, Supervisor $supervisor)
     {
-        // TODO
+        $supervisor->load(['scholars']);
+        return response()->json($supervisor);
     }
 }
