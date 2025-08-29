@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('refresh_tokens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
             $table->string('guard'); // To distinguish admin/supervisor/scholar/user
             $table->string('token')->unique();
             $table->string('device_name')->nullable();
@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('ip_address')->nullable();
             $table->text('user_agent')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'guard']);
         });
     }
 
